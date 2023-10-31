@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSseQuery } from '@/app/queries/sse-query';
-
+import Image from 'next/image';
 import { ConversationItem, DEFAULT_PROMPT, GenerationResult } from '@/common';
 
 import styles from './chat.module.css';
@@ -61,15 +61,6 @@ export default function Chat() {
     };
   }, []);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleSubmit(e);
-      }
-    },
-    [inputValue],
-  );
-
   const handleSubmit = useCallback(
     async (e: any) => {
       e.preventDefault();
@@ -97,7 +88,6 @@ export default function Chat() {
         },
         {
           onSuccess: () => {
-            console.log('!!!!!!!!!!!!!!', fullResponse);
             conversation.push({ role: 'assistant', content: fullResponse });
             localStorage.setItem(`conversation#${active_conversation_key}`, JSON.stringify(conversation));
             setWaitingImage(true);
@@ -107,7 +97,16 @@ export default function Chat() {
         },
       );
     },
-    [inputValue],
+    [inputValue, sendPrompt],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSubmit(e);
+      }
+    },
+    [inputValue, handleSubmit],
   );
 
   return (
@@ -119,7 +118,7 @@ export default function Chat() {
         </pre>
         {isSuccess && gameMessage ? <small style={{ color: '#bebebe' }}>DEBUG: {gameMessage}</small> : ''}
         {waitingImage ? 'Waiting for image...' : ''}
-        {isSuccess && gameResultImage ? <img src={gameResultImage} alt="" /> : ''}
+        {isSuccess && gameResultImage ? <Image src={gameResultImage} alt="game of life result" /> : ''}
       </div>
       <div style={{ flex: 1 }}></div>
       <div className={styles.user}>
