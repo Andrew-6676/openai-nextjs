@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import NextAuthProvider from '@/app/auth-provider';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -8,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" style={{ height: '100%' }}>
-      <body suppressHydrationWarning={true} style={{ height: '100%', margin: 0 }}>
-        {children}
+    <html lang="en">
+      <body suppressHydrationWarning={true}>
+        <NextAuthProvider>{children}</NextAuthProvider>
         <div className={'quote'}>
           "Минимализм в интерфейсе — ключ к сердцу пользователя, открывающий двери в мир понимания и легкости
           взаимодействия." © ChatGPT
