@@ -10,8 +10,9 @@ export default function Home() {
       <>
         <Chat />
         <div className={styles.logout}>
-          {session.user?.email} <br />
           <button onClick={() => signOut()}>Sign out</button>
+          <br />
+          {session.user?.email}
         </div>
       </>
     );
@@ -19,7 +20,6 @@ export default function Home() {
 
   let content = (
     <>
-      {' '}
       Not signed in
       <button onClick={() => signIn()}>Sign in</button>
     </>

@@ -25,6 +25,7 @@ export default function Chat() {
   const [response, setResponse] = useState<string>('');
   const [gameMessage, setGameMessage] = useState<string | null>(null);
   const [waitingImage, setWaitingImage] = useState<boolean>(false);
+  const [conversation, setConversation] = useState<ConversationItem[]>([]);
 
   const { isSuccess, isPending, mutateAsync: sendPrompt } = useSseQuery();
 
@@ -33,6 +34,9 @@ export default function Chat() {
   const active_conversation_key = 'key_1';
 
   useEffect(() => {
+    const savedConversation = JSON.parse(localStorage.getItem(`conversation#${active_conversation_key}`) ?? '[]');
+    setConversation(savedConversation);
+
     workerRef.current = new Worker(new URL('../workers/game-of-life.worker.ts', import.meta.url));
     workerRef.current.onerror = (error) => {
       setWaitingImage(false);
@@ -61,64 +65,65 @@ export default function Chat() {
     };
   }, []);
 
-  const handleSubmit = useCallback(
-    async (e: any) => {
-      e.preventDefault();
+  const handleSubmit = useCallback(async () => {
+    let tmpConversation = conversation.concat({ role: 'user', content: inputValue });
+    let fullResponse = '';
 
-      const conversation: ConversationItem[] = JSON.parse(
-        localStorage.getItem(`conversation#${active_conversation_key}`) ?? '[]',
-      );
-      conversation.push({ role: 'user', content: inputValue });
+    setResponse('Waiting...');
+    setGameResultImage(null);
+    await sendPrompt(
+      {
+        conversation: tmpConversation,
+        onMessage: (dataChunk) => {
+          fullResponse += dataChunk;
 
-      let fullResponse = '';
-
-      setResponse('Waiting...');
-      setGameResultImage(null);
-      await sendPrompt(
-        {
-          conversation: conversation,
-          onMessage: (dataChunk) => {
-            fullResponse += dataChunk;
-            setResponse(fullResponse);
-          },
-          onError: (message) => {
-            alert(message);
-            setResponse(`Server error: ${message}`);
-          },
+          setResponse(fullResponse);
         },
-        {
-          onSuccess: () => {
-            conversation.push({ role: 'assistant', content: fullResponse });
-            localStorage.setItem(`conversation#${active_conversation_key}`, JSON.stringify(conversation));
-            setWaitingImage(true);
-            workerRef.current?.postMessage(fullResponse);
-          },
-          onError: () => {},
+        onError: (message) => {
+          alert(message);
+          setResponse(`Server error: ${message}`);
         },
-      );
-    },
-    [inputValue, sendPrompt],
-  );
+      },
+      {
+        onSuccess: () => {
+          tmpConversation = tmpConversation.concat({ role: 'assistant', content: fullResponse });
+          setConversation(tmpConversation);
+          localStorage.setItem(`conversation#${active_conversation_key}`, JSON.stringify(tmpConversation));
+          setWaitingImage(true);
+          workerRef.current?.postMessage(fullResponse);
+        },
+        onError: () => {},
+      },
+    );
+  }, [inputValue, sendPrompt, conversation]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
-        handleSubmit(e);
+        handleSubmit();
       }
     },
     [inputValue, handleSubmit],
   );
 
+  const handleClearConversation = useCallback(() => {
+    localStorage.removeItem(`conversation#${active_conversation_key}`);
+    setConversation([]);
+  }, []);
+
   return (
     <div className={styles.wrapper}>
-      <h1>Game of Life {isPending ? '(animation of processing...)' : ''} </h1>
+      <button className={styles.clearButton} onClick={handleClearConversation}>
+        Delete conversation ({conversation.length})
+      </button>
+      <h1>Game of Life {isPending && '(animation of processing...)'} </h1>
       <div className={styles.assistant}>
         <pre className={styles.answer} id="response">
           {response}
         </pre>
-        {isSuccess && gameMessage ? <small style={{ color: '#bebebe' }}>DEBUG: {gameMessage}</small> : ''}
-        {waitingImage ? 'Waiting for image...' : ''}
-        {isSuccess && gameResultImage ? <Image src={gameResultImage} alt="game of life result" /> : ''}
+        {isSuccess && gameMessage && <small style={{ color: '#bebebe' }}>DEBUG: {gameMessage}</small>}
+        {waitingImage && 'Waiting for image...'}
+        {isSuccess && gameResultImage && <img src={gameResultImage} alt="game of life result" />}
       </div>
       <div style={{ flex: 1 }}></div>
       <div className={styles.user}>
