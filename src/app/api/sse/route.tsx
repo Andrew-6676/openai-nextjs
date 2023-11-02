@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { ConversationItem } from '@/common';
 
 const encoder = new TextEncoder();
-const client = new OpenAIClient('https://ai-proxy.lab.epam.com', new AzureKeyCredential(`${process.env.OAI_KEY}`));
+const client = new OpenAIClient(`${process.env.OAI_URL}`, new AzureKeyCredential(`${process.env.OAI_KEY}`));
 
 const oaiRequest = async (conversation: ConversationItem[], writer: WritableStreamDefaultWriter) => {
   const events = client.listChatCompletions('gpt-35-turbo', conversation);
