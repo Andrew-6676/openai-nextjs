@@ -3,7 +3,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import GithubProvider from 'next-auth/providers/github';
 import YandexProvider from 'next-auth/providers/yandex';
 
-const authOptions = {
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: `${process.env.GOOGLE_ID}`,

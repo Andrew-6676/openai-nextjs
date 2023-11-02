@@ -1,6 +1,8 @@
 import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
 import { NextResponse, NextRequest } from 'next/server';
 import { ConversationItem } from '@/common';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const encoder = new TextEncoder();
 const client = new OpenAIClient(`${process.env.OAI_URL}`, new AzureKeyCredential(`${process.env.OAI_KEY}`));
@@ -26,13 +28,26 @@ const oaiRequest = async (conversation: ConversationItem[], writer: WritableStre
   console.debug(`RES (${i}) = `, resp);
 };
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest, res: NextResponse) {
+  const responseStream = new TransformStream();
+  const writer = responseStream.writable.getWriter();
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    writer.write(encoder.encode(`event: ${JSON.stringify({error: new Error('Forbidden'), message: 'Please sign in' })}` + '\n\n'));
+    writer.close();
+    return new NextResponse(responseStream.readable, {
+      status: 403,
+      headers: {
+        'Content-Type': 'text/event-stream',
+      },
+    });
+  }
+
   const body: {
     conversation: ConversationItem[];
   } = await req.json();
 
-  const responseStream = new TransformStream();
-  const writer = responseStream.writable.getWriter();
 
   oaiRequest(body.conversation, writer)
     .then(() => {

@@ -5,6 +5,7 @@ import styles from './page.module.css';
 
 export default function Home() {
   const { status, data: session } = useSession();
+
   if (session) {
     return (
       <>
@@ -24,6 +25,7 @@ export default function Home() {
       <button onClick={() => signIn()}>Sign in</button>
     </>
   );
+
   if (status === 'loading') {
     content = <>Loading animation...</>;
   }

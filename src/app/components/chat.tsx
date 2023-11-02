@@ -1,7 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSseQuery } from '@/app/queries/sse-query';
-import Image from 'next/image';
 import { ConversationItem, DEFAULT_PROMPT, GenerationResult } from '@/common';
 
 import styles from './chat.module.css';
@@ -76,11 +75,9 @@ export default function Chat() {
         conversation: tmpConversation,
         onMessage: (dataChunk) => {
           fullResponse += dataChunk;
-
           setResponse(fullResponse);
         },
         onError: (message) => {
-          alert(message);
           setResponse(`Server error: ${message}`);
         },
       },
@@ -103,7 +100,7 @@ export default function Chat() {
         handleSubmit();
       }
     },
-    [inputValue, handleSubmit],
+    [handleSubmit],
   );
 
   const handleClearConversation = useCallback(() => {
@@ -122,7 +119,7 @@ export default function Chat() {
           {response}
         </pre>
         {isSuccess && gameMessage && <small style={{ color: '#bebebe' }}>DEBUG: {gameMessage}</small>}
-        {waitingImage && 'Waiting for image...'}
+        {waitingImage && <div>Waiting for image...</div>}
         {isSuccess && gameResultImage && <img src={gameResultImage} alt="game of life result" />}
       </div>
       <div style={{ flex: 1 }}></div>
