@@ -56,7 +56,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     })
     .catch((e) => {
       const message = 'Something went wrong!';
-      console.error(message);
+      console.error(e);
       writer.write(encoder.encode(`event: ${JSON.stringify({ error: e, message })}` + '\n\n'));
       writer.close();
     });
