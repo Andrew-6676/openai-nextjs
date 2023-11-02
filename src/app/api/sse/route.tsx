@@ -32,17 +32,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const responseStream = new TransformStream();
   const writer = responseStream.writable.getWriter();
 
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    writer.write(encoder.encode(`event: ${JSON.stringify({error: new Error('Forbidden'), message: 'Please sign in' })}` + '\n\n'));
-    writer.close();
-    return new NextResponse(responseStream.readable, {
-      status: 403,
-      headers: {
-        'Content-Type': 'text/event-stream',
-      },
-    });
-  }
+  // const session = await getServerSession(authOptions);
+  // if (!session) {
+  //   writer.write(encoder.encode(`event: ${JSON.stringify({error: new Error('Forbidden'), message: 'Please sign in' })}` + '\n\n'));
+  //   writer.close();
+  //   return new NextResponse(responseStream.readable, {
+  //     status: 403,
+  //     headers: {
+  //       'Content-Type': 'text/event-stream',
+  //     },
+  //   });
+  // }
 
   const body: {
     conversation: ConversationItem[];
