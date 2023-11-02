@@ -31,8 +31,8 @@ const oaiRequest = async (conversation: ConversationItem[], writer: WritableStre
 export async function POST(req: NextRequest, res: NextResponse) {
   const responseStream = new TransformStream();
   const writer = responseStream.writable.getWriter();
-  const session = await getServerSession(authOptions);
 
+  const session = await getServerSession(authOptions);
   if (!session) {
     writer.write(encoder.encode(`event: ${JSON.stringify({error: new Error('Forbidden'), message: 'Please sign in' })}` + '\n\n'));
     writer.close();

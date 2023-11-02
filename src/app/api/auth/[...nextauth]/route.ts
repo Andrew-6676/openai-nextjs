@@ -14,8 +14,8 @@ export const authOptions = {
       clientSecret: `${process.env.GITHUB_SECRET}`,
     }),
     YandexProvider({
-      clientId: `${process.env.YANDEX_CLIENT_ID}`,
-      clientSecret: `${process.env.YANDEX_CLIENT_SECRET}`,
+      clientId: `${process.env.YANDEX_ID}`,
+      clientSecret: `${process.env.YANDEX_SECRET}`,
     }),
   ],
 };

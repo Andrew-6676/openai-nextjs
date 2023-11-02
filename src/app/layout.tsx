@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body suppressHydrationWarning={true}>
         <NextAuthProvider>{children}</NextAuthProvider>
-        <div className={'quote'}>
+        <div className="quote">
           &quot;Минимализм в интерфейсе — ключ к сердцу пользователя, открывающий двери в мир понимания и легкости
           взаимодействия.&quot; © ChatGPT
         </div>
