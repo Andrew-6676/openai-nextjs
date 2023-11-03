@@ -7,9 +7,10 @@ interface GameData {
 
 function parseInput(input: string): GameData | null {
   try {
-    const parsedArray: string[] = [...(input.match(/\[[^\[\]]+]/g) ?? [])];
-    const data = parsedArray.map((line) => JSON.parse(line));
-    const steps = input.match(/(\d+)(?=\D*$)/g)?.[0] ?? 0;
+    const parsedData: string[] = [...(input.match(/```[\s\w]{0,40}?(\[[^\[\]]*(?:\[[^\[\]]*][^\[\]]*)*])[\w\s,^\[\]]{0,20}?(\d+)/) ?? [])];
+    console.debug('parsed data:', parsedData[1], parsedData[2]);
+    const data = JSON.parse(parsedData[1]);
+    const steps = parsedData[2];
 
     return data.length && steps
       ? {
